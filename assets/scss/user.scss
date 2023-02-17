@@ -89,7 +89,7 @@ $button-color-even: #9ccf69;
 
     .order-table{
       padding:10px 0;
-      border-spacing: 1;
+      border-spacing: 1px;
       border-collapse: collapse;
       background:white;
       border-radius:6px;
@@ -115,10 +115,14 @@ $button-color-even: #9ccf69;
 
       tbody tr {
         //height:48px;
-        border-bottom:1px solid $border_color ;
+        border:1px solid $border_color ;
 
-        &:last-child  {
-          border:0;
+        //&:last-child  {
+        //  border:0;
+        //}
+
+        td{
+          border: 1px solid $border_color;
         }
 
         td img{

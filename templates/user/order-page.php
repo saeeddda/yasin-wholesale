@@ -110,9 +110,9 @@ if($load_partners !== null && count($load_partners) > 0) {
                         <tbody>
                             <?php while($product_loop2->have_posts() ): $product_loop2->the_post(); $product = wc_get_product(get_the_ID()); ?>
                                 <tr>
-                                    <td><?php echo $product->get_sku(); ?></td>
-                                    <td><?php echo $product->get_name(); ?></td>
-                                    <td><?php echo get_post_meta($product->get_id(), 'list_guarantee_field', true); ?></td>
+                                    <td style="width: 60px;"><?php echo $product->get_sku(); ?></td>
+                                    <td style="width: 300px;"><?php echo $product->get_name(); ?></td>
+                                    <td style="width: 350px;"><?php echo get_post_meta($product->get_id(), 'list_guarantee_field', true); ?></td>
                                     <td style="width: 110px;"><?php echo get_post_meta($product->get_id(), 'box_quantity_field', true); ?></td>
                                     <td style="width: 140px;">
                                         <?php
@@ -164,7 +164,7 @@ if($load_partners !== null && count($load_partners) > 0) {
                                     <td>
                                         <img src="<?php echo wp_get_attachment_image_src(get_post_thumbnail_id($product->get_id()), 'single-post-thumbnail')[0]; ?>" alt="">
                                     </td>
-                                    <td>
+                                    <td style="width: 120px;">
                                         <input type="number" name="buy_quantity[<?php echo $product->get_id(); ?>]"
                                                id="buy_quantity_<?php echo $product->get_id(); ?>"
                                                min="<?php echo get_post_meta($product->get_id(), 'minimum_buy', true) !== null && !empty(get_post_meta($product->get_id(), 'minimum_buy', true)) ? get_post_meta($product->get_id(), 'minimum_buy', true) : '0'; ?>"
