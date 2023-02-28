@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
 $user = wp_get_current_user();
 $all_categories = YWHelpers::get_all_product_categories();
 $load_partners = YWSettings::get_yw_config('partners_percent');
-$loaded_partner = '';
+$loaded_partner = [];
 
 if($load_partners !== null && count($load_partners) > 0) {
     foreach ($load_partners as $partner_id => $partner_value) {
@@ -28,10 +28,16 @@ if($load_partners !== null && count($load_partners) > 0) {
 
 
 <section class="yw-user-order">
+	<?php if(isset($_SESSION['yw_message']) && !empty($_SESSION['yw_message'])): ?>
+        <div style="background-color: #fff;padding: 10px 20px;border-radius: 12px;border: 1px solid #b18302;margin-bottom: 10px;box-shadow: 0 5px 20px rgb(255 228 178);color: #b18302;font-weight: bold;text-align: center;">
+            <p><?php echo $_SESSION['yw_message']; ?></p>
+        </div>
+		<?php unset($_SESSION['yw_message']); ?>
+	<?php endif; ?>
+    
     <form method="POST" action="" id="order_table_form" name="order_table_form">
         <div class="yw-header">
             <p>برای ثبت سفارش مقدار محصول درخواستی را وارد و روی دکمه ثبت کلیک کنید.</p>
-            <button type="submit" class="button">ثبت سفارش</button>
         </div>
         <div class="yw-body">
             <div class="yw-categories" id="list">
@@ -181,7 +187,7 @@ if($load_partners !== null && count($load_partners) > 0) {
             <?php endif;  wp_reset_postdata(); endforeach; ?>
         </div>
         <div class="yw-footer">
-            <?php echo wp_nonce_field('yw_partner_buy','_wp_nonce')?>
+            <?php wp_nonce_field('yw_partner_buy','_wp_nonce')?>
             <button type="submit" class="button">ثبت سفارش</button>
         </div>
     </form>

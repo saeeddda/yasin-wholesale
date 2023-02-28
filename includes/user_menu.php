@@ -51,14 +51,20 @@ class YWUserMenu{
                 e.preventDefault();
 
                 jQuery('#table_container').addClass('disabled');
-                jQuery.post( '<?php echo admin_url('admin-ajax.php'); ?>',
-                    {
-                        action : "partner_buy_ajax",
-                        data_collection : jQuery("#order_table_form").serialize()
-                    }
-                ).done(function (response) {
-                    jQuery('#table_container').removeClass('disabled');
-                    alert(response.data);
+
+
+                jQuery.ajax({
+                    type: "POST",
+                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                    data: {
+                        action : "yw_partner_buy_ajax",
+                        yw_data_collection : jQuery("#order_table_form").serialize()
+                    },
+                    success: function (response){
+                        jQuery('#table_container').removeClass('disabled');
+                        alert(response.data);
+                    },
+                    dataType: 'json'
                 });
             });
         </script>
