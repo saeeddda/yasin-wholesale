@@ -51,9 +51,7 @@ class YWUserMenu{
                 e.preventDefault();
 
                 jQuery('#table_container').addClass('disabled');
-
-
-                jQuery.ajax({
+				jQuery.ajax({
                     type: "POST",
                     url: '<?php echo admin_url('admin-ajax.php'); ?>',
                     data: {
@@ -62,7 +60,10 @@ class YWUserMenu{
                     },
                     success: function (response){
                         jQuery('#table_container').removeClass('disabled');
-                        alert(response.data);
+						alert(response.data);
+						setTimeout(function(){
+							window.location.reload();
+						},1000);
                     },
                     dataType: 'json'
                 });

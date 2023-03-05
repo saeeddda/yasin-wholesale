@@ -7,11 +7,13 @@ class YWBuyAjax{
     {
         add_action('wp_ajax_yw_partner_buy_ajax', [$this, 'partner_buy_func']);
     }
-
+	
+	/**
+	 * @throws WC_Data_Exception
+	 */
 	public function partner_buy_func(){
-		session_start();
         $data = [];
-        parse_str($_POST['data_collection'], $data);
+        parse_str($_POST['yw_data_collection'], $data);
 
         if(wp_verify_nonce( $data['_wp_nonce'], 'yw_partner_buy' ) >= 1 ){
 			
@@ -111,7 +113,7 @@ class YWBuyAjax{
                 }
             }
 
-            if($new_order->get_item_count() > 0) {
+           if($new_order->get_item_count() > 0) {
 	            try {
 		            $new_order->set_customer_id($user->id);
 		            $new_order->set_address(array(
@@ -127,30 +129,24 @@ class YWBuyAjax{
 			            'postcode' => get_user_meta($user->id, 'billing_postcode', true),
 			            'country' => get_user_meta($user->id, 'billing_country', true)
 		            ));
-		            try {
-			            $new_order->set_payment_method($payment_methods['cheque']);
-		            }catch (WC_Data_Exception $ex){}
+					$new_order->set_payment_method($payment_methods['cheque']);
 		            $total = $new_order->calculate_totals();
 		            $new_order->add_order_note('سفارش افزوده شده از پنل همکار');
-					$new_order->set_status('processing');
-		            try {
-			            $new_order->payment_complete();
-		            }catch (WC_Data_Exception $ex){}
-					$new_order->update_status('processing', ' ', true);
 					
-		            $_SESSION['yw_message'] = "سفارش شمار ثبت شد. شماره سفارش : {$new_order->get_id()} مبلغ کل سفارش : {$total} ";
-		            wp_send_json_success("سفارش شمار ثبت شد. شماره سفارش : {$new_order->get_id()} مبلغ کل سفارش : {$total} ");
+					if($new_order->payment_complete('000000000000')){
+						wp_send_json_success("سفارش شمار ثبت شد. شماره سفارش : {$new_order->get_id()} مبلغ کل سفارش : {$total} ");	
+					}
+					
 	            }catch (WC_Data_Exception $exception){
-		            $_SESSION['yw_message'] = $exception->getMessage();
-		            wp_send_json_error($exception->getMessage() );
+		            wp_send_json_error($exception->getMessage());
 	            }
             }else{
 				wp_delete_post($new_order->get_id(), true);
-	            $_SESSION['yw_message'] = 'ورود حداقل یک مقدار الزامی است';
                 wp_send_json_error('ورود حداقل یک مقدار الزامی است');
             }
         }
-		$_SESSION['yw_message'] = 'مشکلی در ثبت سفارش شما پیش آمده. بعدا مجدد تلاش کنید.';
-        wp_send_json_error('مشکلی در ثبت سفارش شما پیش آمده. بعدا مجدد تلاش کنید.');
+		
+//         wp_send_json_error('مشکلی در ثبت سفارش شما پیش آمده. بعدا مجدد تلاش کنید.');
+        wp_send_json_error($data);
     }
 } new YWBuyAjax();
