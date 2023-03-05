@@ -19,7 +19,7 @@ class YWSaveUserDataAjax
 		
 		if (wp_verify_nonce($wp_nonce_data, 'yw_save_user_data') >= 1) {
 			
-			if (empty($name_data) && empty($family_data) && empty($tel_data) && empty($email_data)) {
+			if (empty($name_data) || empty($family_data) || empty($tel_data) || empty($email_data)) {
 				wp_send_json([
 					'success' => false,
 					'message' => 'ورود تمامی اطلاعات الزامی است. مجدد تلاش کنید.',

@@ -37,7 +37,7 @@ class YWBuyAjax
 				'country' => get_user_meta($user->id, 'billing_country', true)
 			);
 			
-			if (empty($user_address['first_name']) && empty($user_address['last_name']) && empty($user_address['phone']) && empty($user_address['email'])) {
+			if (empty($user_address['first_name']) || empty($user_address['last_name']) || empty($user_address['phone']) || empty($user_address['email'])) {
 				wp_send_json([
 					'success' => false,
 					'message' => 'اطلاعات تماس شما تکمیل نشده است',
