@@ -49,7 +49,6 @@ class YWUserMenu{
         <script type="text/javascript">
             jQuery(document.body).on('submit', '#order_table_form', function(e){
                 e.preventDefault();
-
                 jQuery('#table_container').addClass('disabled');
 				jQuery.ajax({
                     type: "POST",
@@ -60,10 +59,79 @@ class YWUserMenu{
                     },
                     success: function (response){
                         jQuery('#table_container').removeClass('disabled');
-						alert(response.data);
-						setTimeout(function(){
-							window.location.reload();
-						},1000);
+                        if(response.success === true && response.no_data === false) {
+                            Swal.fire({
+                                title: 'سفارش شما ثبت شد',
+                                text: response.message,
+                                icon: 'success',
+                                confirmButtonText: 'تائید'
+                            });
+                        }else if(response.success === false && response.no_data === true){
+                            Swal.fire({
+                                title: response.message,
+                                icon: 'error',
+                                confirmButtonText: 'ورود اطلاعات'
+                            }).then(function (){
+                                Swal.fire({
+                                    title: 'اطلاعات خود را وارد کنید',
+                                    confirmButtonText: 'ذخیره اطلاعات',
+                                    showCancelButton: true,
+                                    cancelButtonText: 'لغو',
+                                    showLoaderOnConfirm: true,
+                                    html: '<input required id="yw_input_name" class="swal2-input" type="text" placeholder="نام" style="max-width:80%" >' +
+                                        '<input required id="yw_input_family" class="swal2-input" type="text" placeholder="نام خانوادگی" style="max-width:80%" >' +
+                                        '<input required id="yw_input_tel" class="swal2-input" type="tel" placeholder=" تلفن" style="max-width:80%" >' +
+                                        '<input required id="yw_input_email" class="swal2-input" type="email" placeholder="ایمیل" style="max-width:80%" >',
+                                    preConfirm: function (){
+                                        return jQuery.ajax({
+                                            type: "POST",
+                                            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                                            data: {
+                                                action : "yw_save_user_data_ajax",
+                                                yw_name: jQuery('#yw_input_name').val(),
+                                                yw_family: jQuery('#yw_input_family').val(),
+                                                yw_tel: jQuery('#yw_input_tel').val(),
+                                                yw_email: jQuery('#yw_input_email').val(),
+                                                _wp_nonce : '<?php echo wp_create_nonce('yw_save_user_data'); ?>'
+                                            },
+                                            success: function (response){
+                                                return response;
+                                            },
+                                            fail: function (error){
+                                                return error;
+                                            }
+                                        });
+                                    }
+                                }).then(function (result){
+                                    if(result.isConfirmed) {
+                                        if (result.value.success === true) {
+                                            Swal.fire({
+                                                title: result.value.message,
+                                                icon: 'success',
+                                                confirmButtonText: 'تائید'
+                                            }).then(function () {
+                                                setTimeout(function () {
+                                                    window.location.reload();
+                                                }, 100);
+                                            });
+                                        } else if (result.value.success === false) {
+                                            Swal.fire({
+                                                title: result.value.message,
+                                                icon: 'error',
+                                                confirmButtonText: 'تائید'
+                                            });
+                                        }
+                                    }
+                                });
+                            });
+                        }else if(response.success === false && response.no_data === false){
+                            Swal.fire({
+                                title: 'مشکلی پیش آمده',
+                                text: response.message,
+                                icon: 'error',
+                                confirmButtonText: 'تائید'
+                            });
+                        }
                     },
                     dataType: 'json'
                 });
