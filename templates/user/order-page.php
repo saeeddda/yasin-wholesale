@@ -27,8 +27,12 @@ if($load_partners !== null && count($load_partners) > 0) {
 ?>
 
 
-<section class="yw-user-order">  
+<section class="yw-user-order">
     <form method="POST" action="" id="order_table_form" name="order_table_form">
+        <div class="yw-submit-container">
+            <span>بعد از انتخاب کالاهای خود از طریق این دکمه فاکتور خود را نهایی کنید.</span>
+            <button type="submit" class="button">نهایی کردن سفارش</button>
+        </div>
         <div class="yw-header">
             <p>برای ثبت سفارش مقدار محصول درخواستی را وارد و روی دکمه ثبت کلیک کنید.</p>
         </div>
@@ -88,7 +92,7 @@ if($load_partners !== null && count($load_partners) > 0) {
                 if($product_loop2->have_posts()): ?>
                 <div class="table-container" id="table_container">
                     <div class="button-container">
-                        <button type="submit" class="button">ثبت سفارش</button>
+                        <!--<button type="submit" class="button">ثبت سفارش</button>-->
                         <a href="#list" class="button outline">بازگشت به فهرست</a>
                     </div>
                     <table class="order-table">
@@ -161,10 +165,10 @@ if($load_partners !== null && count($load_partners) > 0) {
                                         ?>
                                     </td>
                                     <td>
-                                        <img src="<?php echo wp_get_attachment_image_src(get_post_thumbnail_id($product->get_id()), 'single-post-thumbnail')[0]; ?>" alt="">
+                                        <img src="<?php echo wp_get_attachment_image_src(get_post_thumbnail_id($product->get_id()), 'woocommerce_gallery_thumbnail')[0]; ?>" alt="">
                                     </td>
                                     <td style="width: 120px;">
-                                        <input type="number" name="buy_quantity[<?php echo $product->get_id(); ?>]"
+                                        <input type="number" class="yw-value-input" name="buy_quantity[<?php echo $product->get_id(); ?>]"
                                                id="buy_quantity_<?php echo $product->get_id(); ?>"
                                                min="<?php echo get_post_meta($product->get_id(), 'minimum_buy', true) !== null && !empty(get_post_meta($product->get_id(), 'minimum_buy', true)) ? get_post_meta($product->get_id(), 'minimum_buy', true) : '0'; ?>"
                                                step="<?php echo get_post_meta($product->get_id(), 'quantity_count_step', true) !== null && !empty(get_post_meta($product->get_id(), 'quantity_count_step', true)) ? get_post_meta($product->get_id(), 'quantity_count_step', true) : '1'; ?>"

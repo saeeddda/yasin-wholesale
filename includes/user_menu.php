@@ -47,10 +47,26 @@ class YWUserMenu{
     public function add_script(){
         ?>
         <script type="text/javascript">
+            let is_yw_form_changed = false;
+
+            document.querySelectorAll('.yw-value-input').forEach(function(el){
+                el.addEventListener('change', function (){
+                    is_yw_form_changed = true;
+                });
+            });
+
+            window.onbeforeunload = function () {
+                if(is_yw_form_changed) {
+                    alert("فاکتور شما نهایی نشده و در صورت بروزرسانی صفحه اطاعات از بین خواهد رفت. بروز شود؟");
+                    return "فاکتور شما نهایی نشده و در صورت بروزرسانی صفحه اطاعات از بین خواهد رفت. بروز شود؟";
+                }
+            }
+
             jQuery(document.body).on('submit', '#order_table_form', function(e){
                 e.preventDefault();
+
                 jQuery('#table_container').addClass('disabled');
-				jQuery.ajax({
+                jQuery.ajax({
                     type: "POST",
                     url: '<?php echo admin_url('admin-ajax.php'); ?>',
                     data: {

@@ -5,6 +5,48 @@ $button-color: #d2d513;
 $button-color-even: #9ccf69;
 
 .yw-user-order{
+
+  form {
+    position: relative;
+
+    .yw-submit-container {
+      //width: 500px;
+      padding: 10px;
+      position: fixed;
+      left: 5%;
+      bottom: 3%;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      //background-color: #fff;
+      //border: 1px solid #ddd;
+      border-radius: 10px;
+      box-shadow: 5px 5px 30px 20px rgba(0,0,0,0.15);
+      z-index: 99999;
+      animation: color_animation 5s infinite;
+
+      span{
+        margin-left: 10px;
+      }
+
+      button{
+        font-weight: bold;
+      }
+    }
+
+    @keyframes color_animation {
+      0% { background-color: #fff; }
+      30% { background-color: #fdf9e7; }
+      60% { background-color: #fde7e7; }
+      100% { background-color: #fdf9e7; }
+    }
+
+    @media screen and (max-width: 991px){
+      .yw-submit-container {
+        bottom: 5%;
+      }
+    }
+  }
   .yw-header{
     display: flex;
     justify-content: space-between;
