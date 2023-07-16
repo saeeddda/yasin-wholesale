@@ -32,6 +32,7 @@ if($load_partners !== null && count($load_partners) > 0) {
         <div class="yw-submit-container">
             <span>بعد از انتخاب کالاهای خود از طریق این دکمه فاکتور خود را نهایی کنید.</span>
             <button type="submit" class="button">نهایی کردن سفارش</button>
+			<?php wp_nonce_field('yw_partner_buy','_wp_nonce'); ?>
         </div>
         <div class="yw-header">
             <p>برای ثبت سفارش مقدار محصول درخواستی را وارد و روی دکمه ثبت کلیک کنید.</p>
@@ -92,7 +93,7 @@ if($load_partners !== null && count($load_partners) > 0) {
                 if($product_loop2->have_posts()): ?>
                 <div class="table-container" id="table_container">
                     <div class="button-container">
-                        <!--<button type="submit" class="button">ثبت سفارش</button>-->
+<!--                         <button type="submit" class="button">ثبت سفارش</button> -->
                         <a href="#list" class="button outline">بازگشت به فهرست</a>
                     </div>
                     <table class="order-table">
@@ -182,10 +183,6 @@ if($load_partners !== null && count($load_partners) > 0) {
                     </table>
                 </div>
             <?php endif;  wp_reset_postdata(); endforeach; ?>
-        </div>
-        <div class="yw-footer">
-            <?php wp_nonce_field('yw_partner_buy','_wp_nonce'); ?>
-            <button type="submit" class="button">ثبت سفارش</button>
         </div>
     </form>
 </section>

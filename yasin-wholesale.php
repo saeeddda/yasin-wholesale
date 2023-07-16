@@ -4,7 +4,7 @@
  * Plugin Name: Yasin wholesale
  * Plugin URI: https://saeedna.ir/
  * Description: Wholesale to authorised partners
- * Version: 1.5
+ * Version: 1.6
  * Author: Saeed Noori
  * Author URI: https://saeedna.ir/
  */
@@ -43,7 +43,7 @@ class YasinWholesale{
     public function admin_styles(){
         wp_enqueue_style('yw-admin-style',YW_ASSETS . 'css/admin.css');
 
-//        wp_enqueue_script('yw-admin-script', YW_ASSETS . 'js/admin.js');
+    //    wp_enqueue_script('yw-admin-script', YW_ASSETS . 'js/admin.js');
     }
 
     public function user_styles(){

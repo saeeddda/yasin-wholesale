@@ -55,11 +55,14 @@ class YWAdminMenu{
 
             $selected_roles = [];
 
-            $raw_roles = $_POST['yw_settings']['roles'];
-            if($raw_roles !== null) {
-                foreach ($raw_roles as $role_id => $role_value) {
-                    if ($role_value == 'on') {
-                        $selected_roles[] = $role_id;
+            if(isset($_POST['yw_settings']['roles'])){
+                $raw_roles = $_POST['yw_settings']['roles'];
+
+                if($raw_roles !== null) {
+                    foreach ($raw_roles as $role_id => $role_value) {
+                        if ($role_value == 'on') {
+                            $selected_roles[] = $role_id;
+                        }
                     }
                 }
             }
@@ -79,17 +82,19 @@ class YWAdminMenu{
     public function  percent_menu_page(){
 
         if(isset($_POST['yw_percent_form'])){
-            $partners = $_POST['yw_partner'];
-
             $selected_partners = [];
+            
+            if(isset($_POST['yw_partner'])){
+                $partners = $_POST['yw_partner'];
 
-            for($i = 0; $i < count($partners['selected']); $i++) {
-                $selected_partners[$partners['selected'][$i]] = [
-                    'category' => $partners['category'][$i],
-                    'brand' => $partners['brand'][$i],
-                    'list_percent' => $partners['list_percent'][$i],
-                    'discount_percent' => $partners['discount_percent'][$i]
-                ];
+                for($i = 0; $i < count($partners['selected']); $i++) {
+                    $selected_partners[$partners['selected'][$i]] = [
+                        'category' => $partners['category'][$i],
+                        'brand' => $partners['brand'][$i],
+                        'list_percent' => $partners['list_percent'][$i],
+                        'discount_percent' => $partners['discount_percent'][$i]
+                    ];
+                }
             }
 
             YWSettings::set_yw_config('partners_percent', $selected_partners);

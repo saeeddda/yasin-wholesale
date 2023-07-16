@@ -4,36 +4,48 @@ if(!defined('ABSPATH')){exit;}
 class YWUserMenu{
     public function __construct()
     {
-        if(YWSettings::get_yw_config('active_partner_buy') !== null && YWSettings::get_yw_config('active_partner_buy') == 'on') {
-            if(YWSettings::get_yw_config('selected_roles') !== null) {
-                $user_roles = wp_get_current_user()->roles;
+        if(YWSettings::get_yw_config('active_partner_buy') != null && YWSettings::get_yw_config('active_partner_buy') == 'on') {
+            if(YWSettings::get_yw_config('selected_roles') != null) {
+                
+                add_action( 'init', [$this, 'add_wp_endpoint'] );
+                add_filter( 'woocommerce_account_menu_items', [$this, 'add_account_menu_item'], 40 );
+				add_filter( 'query_vars', [$this, 'partner_buy_query_vars'], 0 );
+				add_action( 'wp_loaded', [$this, 'partner_buy_flush_rewrite_rules'] );
+                
+                $user_roles = (array)wp_get_current_user()->roles;
                 $selected_roles = (array)YWSettings::get_yw_config('selected_roles');
-
-                add_action('init', [$this, 'add_wp_endpoint']);
-                add_filter('woocommerce_account_menu_items', [$this, 'add_account_menu_item'], 40);
-
+                
                 if (count(array_intersect( $selected_roles, $user_roles )) > 0) {
-                    add_action('woocommerce_account_partner-buy_endpoint', [$this, 'account_menu_item_content']);
+                    add_action('woocommerce_account_yasin-partner-buy_endpoint', [$this, 'account_menu_item_content']);
                     add_action('wp_footer', [$this, 'add_script'], 999);
-
+					
                     add_filter('woocommerce_product_get_price', [$this, 'global_pricing_per_user'], 90, 2 );
                     add_filter('woocommerce_product_get_regular_price', [$this, 'global_pricing_per_user'], 90, 2 );
                 }else{
-                    add_action('woocommerce_account_partner-buy_endpoint', [$this, 'account_menu_item_content_not_allowed']);
+                    add_action('woocommerce_account_yasin-partner-buy_endpoint', [$this, 'account_menu_item_content_not_allowed']);
                 }
             }
         }
     }
+	
+	public function partner_buy_flush_rewrite_rules() {
+		flush_rewrite_rules();
+	}
+	
+	public function partner_buy_query_vars($vars){
+		$vars[] = 'yasin-partner-buy';
+		return $vars;
+	}
 
     public function add_account_menu_item($menu_links){
         $menu_links = array_slice( $menu_links, 0, 1, true )
-            + array( 'partner-buy' => 'ثبت سفارش همکار' )
+            + array( 'yasin-partner-buy' => 'ثبت سفارش همکار' )
             + array_slice( $menu_links, 1, NULL, true );
         return $menu_links;
     }
 
     public function  add_wp_endpoint(){
-        add_rewrite_endpoint( 'partner-buy', EP_PAGES );
+        add_rewrite_endpoint( 'yasin-partner-buy', EP_ROOT | EP_PAGES );
     }
 
     public function account_menu_item_content(){
@@ -64,92 +76,109 @@ class YWUserMenu{
 
             jQuery(document.body).on('submit', '#order_table_form', function(e){
                 e.preventDefault();
-
+                
                 jQuery('#table_container').addClass('disabled');
-                jQuery.ajax({
-                    type: "POST",
-                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
-                    data: {
-                        action : "yw_partner_buy_ajax",
-                        yw_data_collection : jQuery("#order_table_form").serialize()
-                    },
-                    success: function (response){
-                        jQuery('#table_container').removeClass('disabled');
-                        if(response.success === true && response.no_data === false) {
-                            Swal.fire({
-                                title: 'سفارش شما ثبت شد',
-                                text: response.message,
-                                icon: 'success',
-                                confirmButtonText: 'تائید'
-                            });
-                        }else if(response.success === false && response.no_data === true){
-                            Swal.fire({
-                                title: response.message,
-                                icon: 'error',
-                                confirmButtonText: 'ورود اطلاعات'
-                            }).then(function (){
-                                Swal.fire({
-                                    title: 'اطلاعات خود را وارد کنید',
-                                    confirmButtonText: 'ذخیره اطلاعات',
-                                    showCancelButton: true,
-                                    cancelButtonText: 'لغو',
-                                    showLoaderOnConfirm: true,
-                                    html: '<input required id="yw_input_name" class="swal2-input" type="text" placeholder="نام" style="max-width:80%" >' +
-                                        '<input required id="yw_input_family" class="swal2-input" type="text" placeholder="نام خانوادگی" style="max-width:80%" >' +
-                                        '<input required id="yw_input_tel" class="swal2-input" type="tel" placeholder=" تلفن" style="max-width:80%" >' +
-                                        '<input required id="yw_input_email" class="swal2-input" type="email" placeholder="ایمیل" style="max-width:80%" >',
-                                    preConfirm: function (){
-                                        return jQuery.ajax({
-                                            type: "POST",
-                                            url: '<?php echo admin_url('admin-ajax.php'); ?>',
-                                            data: {
-                                                action : "yw_save_user_data_ajax",
-                                                yw_name: jQuery('#yw_input_name').val(),
-                                                yw_family: jQuery('#yw_input_family').val(),
-                                                yw_tel: jQuery('#yw_input_tel').val(),
-                                                yw_email: jQuery('#yw_input_email').val(),
-                                                _wp_nonce : '<?php echo wp_create_nonce('yw_save_user_data'); ?>'
-                                            },
-                                            success: function (response){
-                                                return response;
-                                            },
-                                            fail: function (error){
-                                                return error;
+
+                Swal.fire({
+                    title: 'آیا از ثبت سفارش مطمئن هستید؟',
+                    text: 'با کلید بر روی دکمه ثبت سفارش فاکتور برای شما ثبت میگردد.',
+                    confirmButtonText: 'ثبت سفارش',
+                    showCancelButton: true,
+                    cancelButtonText: 'لغو',
+                }).then(function(result){
+                    if(result.isConfirmed){
+                        jQuery.ajax({
+                            type: "POST",
+                            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                            data: {
+                                action : "yw_partner_buy_ajax",
+                                yw_data_collection : jQuery("#order_table_form").serialize()
+                            },
+                            success: function (response){
+                                jQuery('#table_container').removeClass('disabled');
+                                if(response.success === true && response.no_data === false) {
+                                    Swal.fire({
+                                        title: 'سفارش شما ثبت شد',
+                                        text: response.message,
+                                        icon: 'success',
+                                        confirmButtonText: 'تائید'
+                                    });
+                                    is_yw_form_changed = false;
+                                    setTimeout(function(){
+                                        window.location.reload();
+                                    }, 3000);
+                                }else if(response.success === false && response.no_data === true){
+                                    Swal.fire({
+                                        title: response.message,
+                                        icon: 'error',
+                                        confirmButtonText: 'ورود اطلاعات'
+                                    }).then(function (){
+                                        Swal.fire({
+                                            title: 'اطلاعات خود را وارد کنید',
+                                            confirmButtonText: 'ذخیره اطلاعات',
+                                            showCancelButton: true,
+                                            cancelButtonText: 'لغو',
+                                            showLoaderOnConfirm: true,
+                                            html: '<input required id="yw_input_name" class="swal2-input" type="text" placeholder="نام" style="max-width:80%" >' +
+                                                '<input required id="yw_input_family" class="swal2-input" type="text" placeholder="نام خانوادگی" style="max-width:80%" >' +
+                                                '<input required id="yw_input_tel" class="swal2-input" type="tel" placeholder=" تلفن" style="max-width:80%" >' +
+                                                '<input required id="yw_input_email" class="swal2-input" type="email" placeholder="ایمیل" style="max-width:80%" >',
+                                            preConfirm: function (){
+                                                return jQuery.ajax({
+                                                    type: "POST",
+                                                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                                                    data: {
+                                                        action : "yw_save_user_data_ajax",
+                                                        yw_name: jQuery('#yw_input_name').val(),
+                                                        yw_family: jQuery('#yw_input_family').val(),
+                                                        yw_tel: jQuery('#yw_input_tel').val(),
+                                                        yw_email: jQuery('#yw_input_email').val(),
+                                                        _wp_nonce : '<?php echo wp_create_nonce('yw_save_user_data'); ?>'
+                                                    },
+                                                    success: function (response){
+                                                        return response;
+                                                    },
+                                                    fail: function (error){
+                                                        return error;
+                                                    }
+                                                });
+                                            }
+                                        }).then(function (result){
+                                            if(result.isConfirmed) {
+                                                if (result.value.success === true) {
+                                                    Swal.fire({
+                                                        title: result.value.message,
+                                                        icon: 'success',
+                                                        confirmButtonText: 'تائید'
+                                                    }).then(function () {
+                                                        setTimeout(function () {
+                                                            window.location.reload();
+                                                        }, 100);
+                                                    });
+                                                } else if (result.value.success === false) {
+                                                    Swal.fire({
+                                                        title: result.value.message,
+                                                        icon: 'error',
+                                                        confirmButtonText: 'تائید'
+                                                    });
+                                                }
                                             }
                                         });
-                                    }
-                                }).then(function (result){
-                                    if(result.isConfirmed) {
-                                        if (result.value.success === true) {
-                                            Swal.fire({
-                                                title: result.value.message,
-                                                icon: 'success',
-                                                confirmButtonText: 'تائید'
-                                            }).then(function () {
-                                                setTimeout(function () {
-                                                    window.location.reload();
-                                                }, 100);
-                                            });
-                                        } else if (result.value.success === false) {
-                                            Swal.fire({
-                                                title: result.value.message,
-                                                icon: 'error',
-                                                confirmButtonText: 'تائید'
-                                            });
-                                        }
-                                    }
-                                });
-                            });
-                        }else if(response.success === false && response.no_data === false){
-                            Swal.fire({
-                                title: 'مشکلی پیش آمده',
-                                text: response.message,
-                                icon: 'error',
-                                confirmButtonText: 'تائید'
-                            });
-                        }
-                    },
-                    dataType: 'json'
+                                    });
+                                }else if(response.success === false && response.no_data === false){
+                                    Swal.fire({
+                                        title: 'مشکلی پیش آمده',
+                                        text: response.message,
+                                        icon: 'error',
+                                        confirmButtonText: 'تائید'
+                                    });
+                                }
+                            },
+                            dataType: 'json'
+                        });
+                    }else if(result.isDismissed){
+                        jQuery('#table_container').removeClass('disabled');
+                    }
                 });
             });
         </script>

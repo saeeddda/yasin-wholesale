@@ -62,13 +62,16 @@ class YWHelpers{
             'hide_empty'   => false,
             'parent' => 0
         );
+
         $product_brands = get_terms($args);
 
-        foreach ($product_brands as $brand) {
-            $brands[] = [
-				$brand->term_id,
-	            $brand->name
-            ];
+        if(!is_wp_error($product_brands)){
+            foreach ($product_brands as $brand) {
+                $brands[] = [
+                    $brand->term_id,
+                    $brand->name
+                ];
+            }
         }
 
         return $brands;
